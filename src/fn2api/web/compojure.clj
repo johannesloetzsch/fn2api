@@ -7,7 +7,9 @@
             #_[spec-tools.core :as st]
             #_[spec-tools.spec :as sp]
             [clojure.repl :refer [doc]]
-            [fn2api.lib.html-pprint :refer [pprint-html]]))
+            [fn2api.lib.html-pprint :refer [pprint-html]]
+            [fn2api.lib.spec :refer [sub-specs]]
+            [clojure.string :refer [join]]))
 
 (defn wrap-f [f]
   (fn [{:as params}]
@@ -26,11 +28,25 @@
               {method
                (merge
                  {:summary (str "\\" (ns-resolve (:ns (meta var-f)) (:name (meta var-f))))
-                  :description (str (pprint-html (as-> (meta var-f) x
-                                                       (apply dissoc x [:ns :name])))
-                                    ;;; maybe add s/describe + recursively resolved with s/get-spec or s/registry
-                                    "Example calls:<br/>"
-                                    (pprint-html (s/exercise-fn var-f 3)))
+                  :description (join "<br/>"
+                                     [(str (join ":" (map #(get (meta var-f) %) [:file :line :column])) "<br/>")
+                                      (:name (meta var-f))
+                                      (:arglists (meta var-f))
+                                      (str (:doc (meta var-f)) "<br/>")
+                                      "Meta data:"
+                                      (pprint-html (as-> (meta var-f) x
+                                                         (apply dissoc x [:ns :name
+                                                                          :file :line :column
+                                                                          :arglists :doc])))
+                                      "Spec:"
+                                      (-> (s/get-spec var-f)
+                                          s/describe
+                                          pprint-html)
+                                      (->> (sub-specs var-f)
+                                           (map #(vector % (s/describe %)))
+                                           pprint-html)
+                                      "Example calls:"
+                                      (pprint-html (s/exercise-fn var-f 3))])
                   ;:responses {200 {:schema ::total-map}}
                   :handler (wrap-f f)}
                  (get-in (meta var-f) [:methods method]))}))))

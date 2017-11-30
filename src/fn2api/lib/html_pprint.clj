@@ -1,10 +1,10 @@
 (ns fn2api.lib.html-pprint
   (:require [clojure.pprint :refer [pprint]]
-            [clojure.string :refer [replace]]))
+            [clojure.string :as s]))
 
 (defn pprint-html [x]
   (-> x
       pprint
       with-out-str
-      (replace #"\n" "<br/>")
-      (replace #" " "&nbsp;")))
+      (s/replace #"\n" "<br/>")
+      (s/replace #" " "&nbsp;")))
