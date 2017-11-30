@@ -1,4 +1,4 @@
-(defproject fn2api "0.1.0-SNAPSHOT"
+(defproject fn2api "0.1.1-SNAPSHOT"
   :description "Simple generation of cli- and web-apis from functions + metadata"
   :url "https://github.com/johannesloetzsch/fn2api/"
   :dependencies [[org.clojure/clojure "1.9.0-RC1"]

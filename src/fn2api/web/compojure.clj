@@ -25,31 +25,32 @@
        (apply merge
          {:coercion :spec}
          (for [method [:get :post]]
-              {method
-               (merge
-                 {:summary (str "\\" (ns-resolve (:ns (meta var-f)) (:name (meta var-f))))
-                  :description (join "<br/>"
-                                     [(str (join ":" (map #(get (meta var-f) %) [:file :line :column])) "<br/>")
-                                      (:name (meta var-f))
-                                      (:arglists (meta var-f))
-                                      (str (:doc (meta var-f)) "<br/>")
-                                      "Meta data:"
-                                      (pprint-html (as-> (meta var-f) x
-                                                         (apply dissoc x [:ns :name
-                                                                          :file :line :column
-                                                                          :arglists :doc])))
-                                      "Spec:"
-                                      (-> (s/get-spec var-f)
-                                          s/describe
-                                          pprint-html)
-                                      (->> (sub-specs var-f)
-                                           (map #(vector % (s/describe %)))
-                                           pprint-html)
-                                      "Example calls:"
-                                      (pprint-html (s/exercise-fn var-f 3))])
-                  ;:responses {200 {:schema ::total-map}}
-                  :handler (wrap-f f)}
-                 (get-in (meta var-f) [:methods method]))}))))
+              (if (get-in (meta var-f) [:methods method])
+                  {method
+                   (merge
+                     {:summary (str "\\" (ns-resolve (:ns (meta var-f)) (:name (meta var-f))))
+                      :description (join "<br/>"
+                                         [(str (join ":" (map #(get (meta var-f) %) [:file :line :column])) "<br/>")
+                                          (:name (meta var-f))
+                                          (:arglists (meta var-f))
+                                          (str (:doc (meta var-f)) "<br/>")
+                                          "Meta data:"
+                                          (pprint-html (as-> (meta var-f) x
+                                                             (apply dissoc x [:ns :name
+                                                                              :file :line :column
+                                                                              :arglists :doc])))
+                                          "Spec:"
+                                          (-> (s/get-spec var-f)
+                                              s/describe
+                                              pprint-html)
+                                          (->> (sub-specs var-f)
+                                               (map #(vector % (s/describe %)))
+                                               pprint-html)
+                                          "Example calls:"
+                                          (pprint-html (s/exercise-fn var-f 1))])
+                      ;:responses {200 {:schema ::total-map}}
+                      :handler (wrap-f f)}
+                     (get-in (meta var-f) [:methods method]))})))))
 
 (defn ->resource [f]
   (resource (->resource-data f)))
