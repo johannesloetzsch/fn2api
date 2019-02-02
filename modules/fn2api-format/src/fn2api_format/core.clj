@@ -4,7 +4,8 @@
             [spec-tools.core :as st]
             [muuntaja.core :as m]
             [muuntaja.format.yaml]
-            [fn2api-format.format-plain]))
+            [fn2api-format.format-plain])
+  (:import [java.net URL]))
 
 (def ^{:doc "my munjana instance
 (adds support for additional formats)"}
@@ -19,34 +20,40 @@
 
 (def default-format "application/edn")
 
-(defn decode [formatted &{:keys [format spec]}]
-  (let [formatted:str (cond (string? formatted) formatted
-                            (map? formatted) (:data formatted))
-        _ (assert (string? formatted:str))
+(defn decode [in &{:keys [format spec]}]
+  (let [in:data (cond (map? in) (:data in)
+                      :else in)
+        in:str (cond (string? in:data) in:data
+                     (instance? URL in:data) (slurp in:data))
+        _ (assert (string? in:str))
         format||default (cond format format
-                              (:format formatted) (:format formatted)
-                              :else default-format)
+                              (:format in) (:format in)
+                               :else default-format)  ;; TODO for URL: try to get default-format from extension
 
-        data (m/decode mm format||default formatted:str)]
+        data (m/decode mm format||default in:str)]
 
        (if spec
-           (let [transformer (format->transformer format||default)]
-                (assert transformer, (str "No transformer found for " format||default))
-                (st/decode spec data transformer))
+           (let [transformer (format->transformer format||default)
+                 _ (assert transformer, (str "No transformer found for " format||default))
+                 result (st/decode spec data transformer)]
+                (if (s/invalid? result)
+                    (throw (ex-info "Invalid Spec" (-> (s/explain-data spec data)
+                                                       (select-keys [::s/problems]))))
+                    result))
            data)))
 
-(defn encode [edn &{:keys [spec format slurp? intoMap?]
-                    :or {format "application/edn"
-                         slurp? true}}]
-  (let [spec||default (or spec (s/get-spec edn))
+(defn encode [in &{:keys [spec format slurp? intoMap?]
+                   :or {format "application/edn"
+                        slurp? true}}]
+  (let [spec||default (or spec (s/get-spec in))
         _ (assert spec||default #_(or (s/spec? spec||default) (fn? spec||default))
                   (str "Needs be a spec: " (s/describe spec||default)))
-        edn:data (if (var? edn)
-                     (var-get edn)
-                     edn)
+        in:data (if (var? in)
+                    (var-get in)
+                    in)
         transformer (format->transformer format)
 
-        x (st/encode spec||default edn:data transformer)
+        x (st/encode spec||default in:data transformer)
         formatted (m/encode mm format x)]
 
        (if-not slurp?

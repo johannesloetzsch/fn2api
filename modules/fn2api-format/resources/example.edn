@@ -1,0 +1,4 @@
+{:example-str "hello"
+ :example-int 42
+ :example-float 3.14
+ :example-collection [2.3 5 7]}

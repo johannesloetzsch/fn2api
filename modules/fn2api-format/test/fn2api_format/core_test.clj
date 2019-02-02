@@ -1,7 +1,8 @@
 (ns fn2api-format.core-test
   (:require [clojure.test :refer :all]
             [fn2api-format.core :refer [decode encode]]
-            [clojure.spec.alpha :as s]))
+            [clojure.spec.alpha :as s]
+            [clojure.java.io :refer [resource]]))
 
 (s/def ::example-str string?)
 (s/def ::example-int int?)
@@ -27,23 +28,35 @@
       example-yaml:map (encode (var example) :intoMap? true :format "application/x-yaml")]
 
      (deftest encoding
-       (testing
-         (is (= example-edn "{:example-str \"hello\", :example-int 42, :example-float 3.14, :example-collection [2.3 5 7]}"))
-         (is (= example-json "{\"example-str\":\"hello\",\"example-int\":42,\"example-float\":3.14,\"example-collection\":[2.3,5,7]}"))
-         (is (= example-yaml "example-str: hello\nexample-int: 42\nexample-float: 3.14\nexample-collection: [2.3, 5, 7]\n"))))
+       (is (= example-edn "{:example-str \"hello\", :example-int 42, :example-float 3.14, :example-collection [2.3 5 7]}"))
+       (is (= example-json "{\"example-str\":\"hello\",\"example-int\":42,\"example-float\":3.14,\"example-collection\":[2.3,5,7]}"))
+       (is (= example-yaml "example-str: hello\nexample-int: 42\nexample-float: 3.14\nexample-collection: [2.3, 5, 7]\n")))
 
      (deftest decoding
-       (testing
+       (testing "decode maps and strings"
          (is (= example (decode example-edn:map) (decode example-edn)))
          (is (= example (decode example-json:map) (decode example-json :format "application/json")))
-         (is (= example (decode example-yaml:map) (decode example-yaml :format "application/x-yaml")))))
+         (is (= example (decode example-yaml:map) (decode example-yaml :format "application/x-yaml"))))
+
+       (testing "decoding of resource"
+         (is (= example (decode (resource "example.edn"))))))
 
      (deftest decoding+validation
-       (testing
+       (testing "when given a spec, st/decode (including validation) is applied"
          (is (= example (decode example-edn:map :spec ::example)))
          (is (= example (decode example-json:map :spec ::example)))
          (is (= (update-in example [:example-collection] reverse)  ;; NOTE this is unintended
-                (decode example-yaml:map :spec ::example))))))
+                (decode example-yaml:map :spec ::example))))
+       
+       (testing "handling of decoding/validation errors"
+
+         (is (try (fn2api-format.core/decode "{:this-is-a-key-without-value}")
+                  (catch Exception e (ex-message e)))
+             "Malformed application/edn in :muuntaja/decode")
+
+         (is (= (try (fn2api-format.core/decode "42" :spec neg?)
+                     (catch Exception e (::s/problems (ex-data e))))
+                [{:path [] :pred 'clojure.core/neg? :val 42, :via [], :in []}])))))
 
 (deftest plain-format
   (testing "anything will be encoded as string; literals should be decoded to the correct type"
