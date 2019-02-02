@@ -23,7 +23,8 @@
                 :id id
                 :default (:fn2api/default spec)
                 :parse-fn (if argument
-                              #(decode % :format "text/plain" :spec spec))
+                              #(try (decode % :format "text/plain" :spec spec)
+                                    (catch clojure.lang.ExceptionInfo e ::s/invalid)))
                 :validate (if argument
                               [#(s/valid? spec %) (:reason spec)])
                 :assoc-fn (if-let [assoc-fn (:fn2api/assoc-fn spec)]

@@ -1,14 +1,15 @@
-(defproject fn2api-parent "0.2.0-SNAPSHOT"
+(defproject fn2api-parent "0.2.0"
   :description "Simple generation of cli+web APIs+UIs from specced functions (+metadata)"
   :url "https://github.com/johannesloetzsch/fn2api/"
+  :scm {:name "git" :url "https://github.com/johannesloetzsch/fn2api"}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins [[lein-sub "0.3.0"]
             [lein-shell "0.5.0"]]
   :dependencies [[org.clojure/clojure "1.10.0"]]
-  :managed-dependencies [[fn2api-core "0.2.0-SNAPSHOT"]
-                         [fn2api-lib "0.2.0-SNAPSHOT"]
-                         [fn2api-format "0.2.0-SNAPSHOT"]
+  :managed-dependencies [[fn2api-core "0.2.0"]
+                         [fn2api-lib "0.2.0"]
+                         [fn2api-format "0.2.0"]
 
                          [yogthos/config "1.1.1"]
                          [mount "0.1.15"]
