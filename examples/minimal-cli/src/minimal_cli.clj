@@ -12,10 +12,10 @@
 
 (s/fdef port-example
   ;:args (s/cat :kwargs (s/keys :req-un [::port])))
-  :args (s/cat :p ::port :variadic #_any? sequential?))  ;; TODO any? is not working
+  :args (s/cat :p ::port))
 
-;(defn port-example [{:keys [port]}]
-(defn port-example [port & ignored]
+;(defn port-example [{:keys [port]}]  ;; TODO
+(defn port-example [port]
   (println "Start imaginary server at port" port))
 
 (defn -main [& args]

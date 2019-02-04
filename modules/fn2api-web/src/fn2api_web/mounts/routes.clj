@@ -4,5 +4,5 @@
             [fn2api-web.routes.placeholder :refer [placeholder-routes]]))
 
 (defstate routes
-  :start (get-in config [:fn2api-web :routes] #'placeholder-routes)
+  :start (get-in config [:fn2api-web :routes] placeholder-routes)
   :stop placeholder-routes)

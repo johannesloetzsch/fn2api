@@ -2,7 +2,7 @@
   (:require [mount.core :refer [defstate]]
             [fn2api-web.mounts.routes :refer [routes]]
             [reitit.ring :as rr]
-            [fn2api-web.routing.defaults :refer [default-opts]]))
+            [fn2api-web.middleware.defaults :refer [default-opts]]))
 
 (defstate router
   :start ;; See https://metosin.github.io/reitit/advanced/dev_workflow.html

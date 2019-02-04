@@ -20,7 +20,8 @@
 
 
 (deftest ^:slow environments
-  (mount.core/start)
+  (mount.core/stop)
+  (mount.core/start-with-args {})
 
   (testing "using the compiled productive router we should be at least 10 times faster than with the :dev router (for trivial functions)"
     (is (> (bench-mean-quotient #(= 404 (:status %))

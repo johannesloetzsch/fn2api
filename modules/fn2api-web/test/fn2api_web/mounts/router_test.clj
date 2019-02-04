@@ -9,22 +9,24 @@
 (deftest routing
 
   (testing "matching by path&name on placeholder from fn2api-web.mounts.routes"
-    (mount.core/start)
+    ;; reset routes in case it was set different by other testcase
+    (mount.core/stop)
+    (mount.core/start-with-args {})
 
-    (is (= (:name (:data (match-by-path ((:dev router)) "/"))) :placeholder))
-    (is (= (:path (match-by-name ((:dev router)) :placeholder)) "/"))
+    (is (= :placeholder (:name (:data (match-by-path ((:dev router)) "/")))))
+    (is (= "/" (:path (match-by-name ((:dev router)) :placeholder))))
 
     ;; this only works for :prod since :dev yields always a new instance
-    (is (= (match-by-path ((:prod router)) "/")
-           (match-by-name ((:prod router)) :placeholder)))
-    (is (not= (match-by-path ((:dev router)) "/")
-              (match-by-name ((:dev router)) :placeholder))))
+    (is (= (match-by-name ((:prod router)) :placeholder)
+           (match-by-path ((:prod router)) "/")))
+    (is (not= (match-by-name ((:dev router)) :placeholder)
+              (match-by-path ((:dev router)) "/"))))
 
   (testing "handler"
-    (is (= ((get-in (match-by-name ((:dev router)) :placeholder) [:data :get :handler]))
+    (is (= {:status 404 :headers {"Content-Type" "text/html"} :body "Not found - Please add some routes"}
+           ((get-in (match-by-name ((:dev router)) :placeholder) [:data :get :handler]))
            ((ring-handler ((:dev router))) {:request-method :get :uri "/"})
-           ((router->app (:dev router)) {:request-method :get :uri "/"})
-           {:status 404 :headers {"Content-Type" "text/html"} :body "Not found - Please add some routes"})))
+           ((router->app (:dev router)) {:request-method :get :uri "/"}))))
 
   (testing "router after routes have been replaced"
     (mount.core/stop)
@@ -32,6 +34,6 @@
                                                                     :get {:handler (fn [& args]
                                                                                        {:status 200
                                                                                         :body "Hello World"})}} ]])}})
-    (is (= ((get-in (match-by-path ((:prod router)) "/") [:data :get :handler]))
-           ((get-in (match-by-path ((:dev router)) "/") [:data :get :handler]))
-           {:status 200 :body "Hello World"}))))
+    (is (= {:status 200 :body "Hello World"}
+           ((get-in (match-by-path ((:prod router)) "/") [:data :get :handler]))
+           ((get-in (match-by-path ((:dev router)) "/") [:data :get :handler]))))))

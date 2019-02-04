@@ -24,28 +24,17 @@
                 {:options {"port" 22, "verbosity" 3, "help" true}, :arguments [], :errors nil})))))
 
 ;(s/fdef port-example
-;  :args (s/cat :p ::port :variadic #_any? sequential?))  ;; TODO any? is not working
+;  :args (s/cat :p ::port))
 ;
-;(defn port-example [port & ignored]
+;(defn port-example [port]
 ;  (println "Start imaginary server at port" port))
 ;
-;(defn -main [& args]
-;  (fn->cli (var port-example) args))
-;
 ;(require '[fn2api-core.signatures :refer [fn->type fn->signature-map]])
-;(require '[fn2api-core.core :refer [fn->fn]])
-;(require '[fn2api-cli.core :refer [spec->cli-options]])
-;(require '[fn2api-core.signatures-spec :refer [fn->specs_fallback]])
 ;(fn->signature-map (var port-example))
 ;(fn->type (var port-example))
-;((fn->fn (var port-example)) {:port 3})
 ;
 ;(require '[fn2api-core.signatures-spec.parse-by-transform :refer [fn->specs]])
 ;(fn->specs (var port-example))
 ;
-;(let [specs (concat [:fn2api-cli.core/help :fn2api-cli.core/verbosity] (fn->specs_fallback (var port-example)))
-;      _ (println specs)
-;      cli-options (spec->cli-options specs)]
-;     (println cli-options)
-;     (parse-opts ["-p" "3" "other" "args"] cli-options))
-;(fn->cli (var port-example) ["-p" "3" "other" "args"])
+;;(require '[fn2api-core.signatures-spec :refer [fn->specs_fallback]])
+;;(fn->specs_fallback (var port-example))

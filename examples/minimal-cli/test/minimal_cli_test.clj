@@ -26,13 +26,12 @@
   (let [usage (singlespace (str "Usage:\n"
                                 "  -h, --help           Show help\n"
                                 "  -v, --verbose        Increase verbosity (can be applied multiple times)\n"
-                                "  -p, --port PORT  80  Port Number\n"
-                                "      --ignored IGNORED  nil\n"))] ;; TODO remove this
+                                "  -p, --port PORT  80  Port Number\n"))]
 
        (testing "missing argument"
-         (is (= (singlespace (with-out-str (-main "-p")))
-                (str "Missing required argument for \"-p PORT\"\n" usage))))
+         (is (= (str "Missing required argument for \"-p PORT\"\n" usage)
+                (singlespace (with-out-str (-main "-p"))))))
 
        (testing "coercion/validation fail"
-         (is (= (singlespace (with-out-str (-main "-p" "not-a-number")))
-                (str "Failed to validate \"-p not-a-number\": Must be a number between 0 and 65536\n" usage))))))
+         (is (= (str "Failed to validate \"-p not-a-number\": Must be a number between 0 and 65536\n" usage)
+                (singlespace (with-out-str (-main "-p" "not-a-number"))))))))

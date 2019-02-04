@@ -1,4 +1,4 @@
-(defproject minimal-webserver "0.0.1-SNAPSHOT"
+(defproject minimal-webserver "0.2.1-SNAPSHOT"
   :description "An example web interface created with fn2api"
   :url "https://github.com/johannesloetzsch/fn2api/"
   :scm {:name "git" :url "https://github.com/johannesloetzsch/fn2api"}

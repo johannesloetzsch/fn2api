@@ -1,4 +1,4 @@
-(ns fn2api-web.routing.error-test
+(ns fn2api-web.middleware.error-test
   (:require [clojure.test :refer :all]
             [mount.core]
             [fn2api-web.mounts.router :refer [router]]

@@ -1,4 +1,4 @@
-(ns fn2api-web.routing.defaults
+(ns fn2api-web.middleware.defaults
   (:require [reitit.ring.coercion :as coercion]
             [reitit.coercion.spec :refer [coercion]]
             [muuntaja.core :refer [instance]]

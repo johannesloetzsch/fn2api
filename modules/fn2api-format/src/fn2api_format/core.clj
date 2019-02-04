@@ -5,7 +5,8 @@
             [muuntaja.core :as m]
             [muuntaja.format.yaml]
             [fn2api-format.format-plain])
-  (:import [java.net URL]))
+  (:import [java.net URL]
+           [java.io InputStream]))
 
 (def ^{:doc "my munjana instance
 (adds support for additional formats)"}
@@ -23,8 +24,10 @@
 (defn decode [in &{:keys [format spec]}]
   (let [in:data (cond (map? in) (:data in)
                       :else in)
-        in:str (cond (string? in:data) in:data
-                     (instance? URL in:data) (slurp in:data))
+        in:str (if (or (instance? URL in:data)
+                       (instance? InputStream in:data))
+                   (slurp in:data)
+                   in:data)
         _ (assert (string? in:str))
         format||default (cond format format
                               (:format in) (:format in)
